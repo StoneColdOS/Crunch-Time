@@ -204,7 +204,8 @@ const T={
   TOSS_CASH:1,          // tossing an item
   TIP_MAX:.6,           // tip as share of order price at full patience
   REACH:.85,            // how close you must stand to use a station
-  FOG:[2.5,15],         // fog start / end distance
+  FOG:[7,27],           // fog start / end distance
+  CAMERA:'wide',        // 'wide' = one fixed corner shot, 'cuts' = four close angles. Select / C swaps.
 };
 const RES=[320,180];
 
@@ -230,6 +231,7 @@ const BOUNDS={x0:-6.7,x1:6.7,z0:.4,z1:7.7};
 const CUST_Z=-1.8, COUNTER_H=.9;
 // fixed camera angles, Resident Evil style. Zone is picked from where you stand.
 const CAMS={
+  W: {pos:[6.5,9.5,12.5],at:[-.4,.6,1.7], fov:55},  // the whole kitchen from the far corner
   cL:{pos:[3.4,3.5,4.4], at:[-3.8,.9,-.9], fov:55},   // counter, left half
   cR:{pos:[-3.4,3.5,4.4],at:[3.8,.9,-.9],  fov:55},   // counter, right half
   L: {pos:[2.0,4.0,7.6], at:[-6.2,.5,3.6], fov:58},   // grill + burritos
@@ -456,6 +458,7 @@ function animPerson(p,moving,dt,speed=11){
 
 /* ================= cameras ================= */
 function zoneFor(x,z,cur){
+  if(camMode==='wide') return 'W';
   const atCounter=z<2.3||(z<2.9&&cur[0]==='c');
   if(atCounter){ if(x<-.4) return 'cL'; if(x>.4) return 'cR'; return cur[0]==='c'?cur:(x<0?'cL':'cR'); }
   if(x<-.9) return 'L'; if(x>-.1) return 'R'; return (cur==='L'||cur==='R')?cur:(x<-.5?'L':'R');
@@ -467,7 +470,8 @@ function setCam(key){
   const f=new THREE.Vector3(c.at[0]-c.pos[0],0,c.at[2]-c.pos[2]).normalize();
   camBasis={fx:f.x,fz:f.z,rx:-f.z,rz:f.x};
 }
-let camBasis, moveBasis=null;
+let camBasis, moveBasis=null, camMode=T.CAMERA;
+function toggleCam(){ camMode=camMode==='wide'?'cuts':'wide'; setCam(zoneFor(S.p.x,S.p.z,camKey)); say(camMode==='wide'?'Wide camera':'Close camera angles'); }
 
 /* ================= UI overlay ================= */
 const ui=$('ui'), V=new THREE.Vector3();
@@ -608,11 +612,11 @@ function actB(){
 function cycle(d){ if(S.hands.length<2) return; S.sel=(S.sel+d+S.hands.length)%S.hands.length; beep(400,.03,'sine'); renderHands(); }
 
 /* ================= input: keyboard, touch, gamepad ================= */
-const src={key:{},touch:{},pad:{}}, KEYS=['up','down','left','right','a','b','l','r'];
+const src={key:{},touch:{},pad:{}}, KEYS=['up','down','left','right','a','b','l','r','cam'];
 let prev={}, taps=new Set(), stick=[0,0];
 const held=k=>!!(src.key[k]||src.touch[k]||src.pad[k]);
 const KEYMAP={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',
-  KeyZ:'a',Space:'a',Enter:'a',KeyJ:'a',KeyX:'b',Backspace:'b',KeyK:'b',Escape:'b',KeyQ:'l',KeyE:'r'};
+  KeyZ:'a',Space:'a',Enter:'a',KeyJ:'a',KeyX:'b',Backspace:'b',KeyK:'b',Escape:'b',KeyQ:'l',KeyE:'r',KeyC:'cam'};
 addEventListener('keydown',e=>{
   if(!$('overlay').hidden){ if(e.code==='Enter'||e.code==='Space'){e.preventDefault();$('go')?.click();} return; }
   const k=KEYMAP[e.code]; if(!k) return; e.preventDefault();
@@ -638,7 +642,7 @@ function pollPad(){
     if(bt(12)) src.pad.up=1; if(bt(13)) src.pad.down=1; if(bt(14)) src.pad.left=1; if(bt(15)) src.pad.right=1;
     if(Math.hypot(ax[0]||0,ax[1]||0)>.3) stick=[ax[0],ax[1]];
     if(bt(0)) src.pad.a=1; if(bt(1)) src.pad.b=1;
-    if(bt(4)||bt(6)) src.pad.l=1; if(bt(5)||bt(7)) src.pad.r=1;
+    if(bt(4)||bt(6)) src.pad.l=1; if(bt(5)||bt(7)) src.pad.r=1; if(bt(8)) src.pad.cam=1;
     if(bt(9)||bt(0)) start=true;
   }
   if(start&&!startHeld&&!$('overlay').hidden) $('go')?.click();
@@ -678,6 +682,7 @@ function update(dt,pr){
   const z=zoneFor(P.x,P.z,camKey);
   if(z!==camKey){ setCam(z); const cut=$('cut'); cut.classList.add('on'); requestAnimationFrame(()=>requestAnimationFrame(()=>cut.classList.remove('on'))); }
 
+  if(pr.cam) toggleCam();
   if(pr.l) cycle(-1);
   if(pr.r) cycle(1);
   if(pr.a) actA();
@@ -841,7 +846,7 @@ if(!window.THREE){
         <li>Stand at a bag and press A to put the item in. Get it wrong and it costs you.</li>
         <li>If they wait too long, they call corporate. Three calls and corporate comes.</li>
       </ul>
-      <p class="keys">Keyboard: arrows or WASD to walk, Q / E for L / R, Z = A, X = B. Controllers work too. Sound on.</p>
+      <p class="keys">Keyboard: arrows or WASD to walk, Q / E for L / R, Z = A, X = B, C swaps camera. Controllers work too (Select swaps camera). Sound on.</p>
       <button class="go" id="go">Clock in</button>`);
     requestAnimationFrame(frame);
   });

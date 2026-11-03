@@ -12,6 +12,7 @@ A 90s fast-food rush game inspired by the sushi bar in Dave the Diver. Walk the 
 | Switch held item | L / R | Q / E |
 | Grab, start machine, bag item | A | Z or Space |
 | Toss held item | B | X |
+| Swap camera (wide / close) | Select | C |
 | Start | Start | Enter |
 
 Touch buttons show up on phones.

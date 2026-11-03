@@ -33,7 +33,7 @@ The fun is in **routing and juggling**, not in any single action: which order to
 
 6. **Real 3D, PS1 style.** Low-poly 3D rendered at 320x180 with chunky pixels and wobbly vertices, fixed angled camera, free movement in every direction. Layout follows the sketch in `docs/sketches/2026-11-03-kitchen-layout.jpg`: long pick-up counter across the back, stations spread around the floor.
 
-7. **Fixed camera angles, Resident Evil style.** Four angles (counter left, counter right, grill side, fountain side) that cut as you walk. Movement is relative to the camera, and your direction holds through a cut until you let go of the stick.
+7. **Fixed camera angles, Resident Evil style.** Default is one wide shot from a high corner that sees the whole kitchen. The four close angles (counter left, counter right, grill side, fountain side) that cut as you walk are kept as an option; Select / C swaps. Playtesting decides which stays. Movement is relative to the camera, and your direction holds through a cut until you let go of the stick.
 8. **Ticket rail.** Because the camera can't always see the customers, every order prints as a ticket across the top of the screen with a patience bar. Each ticket matches a bag on the counter.
 9. **Every station is labeled** with a sign showing its name and the food it makes.
 
@@ -75,6 +75,7 @@ Ideas that sound cool but are **not** being built yet:
 ## Tech
 
 - Single HTML file, plain JS, no build step.
+- Fog distance and camera mode are in the `T` tuning block.
 - Three.js r128 from cdnjs. Renders at 320x180 and scales up with nearest-neighbor for the PS1 look.
 - UI (order bubbles, timers, hands) is HTML drawn over the 3D view.
 - Input: keyboard, touch buttons, Gamepad API.
