@@ -23,20 +23,25 @@ The fun is in **routing and juggling**, not in any single action: which order to
 - **90s fast-food nostalgia.** Purple, teal, hot pink, Memphis confetti, pixel art. An original brand, no real logos.
 - **Plays great on the AYN Thor.** Controller first, touch second.
 
-## Open questions (answer before Milestone 1 code)
+## Decisions (locked 2026-11-03)
 
-1. **Where does the bag live?**
-   - A: A bagging counter. Bags sit on it, you drop items into them, then carry the finished bag out. *(My recommendation. It creates a hub you route through, like Dave's counter.)*
-   - B: You carry the bag around and drop items into it.
-2. **Carry limit?** Recommend 2 loose items at a time, so big orders force multiple trips. That's where the routing skill comes from.
-3. **Are items ready to grab, or do some need prep?** Recommend: most are instant grabs, and 1 or 2 (quesadilla, drink) need a short timed action (grill, pour) that you can start and walk away from. That's the Dave "juggling" feel. The arrow combos from v0 go in the parking lot unless they test well.
-4. **Where do customers pick up?** Counter only, or counter + drive-thru window later?
-5. **Wrong bag:** what happens if you pack an item they didn't order? Penalty, or you can pull it back out?
+1. **Bags live at a central pick-up counter.** Kitchen stations sit on both sides of it. You walk out, pick items up, and walk back to drop them in. Each bag sits right under its customer in the pick-up window.
+2. **Carry limit: 5 items.** This is a tuning knob (`T.HANDS`). If routing feels too easy, try 3 before changing anything else.
+3. **Two kinds of station.** Grab stations hand you the item instantly. Machines (grill, fountain) need you to press start, then you walk away while they cook and come back to grab the item.
+4. **Pick-up window only.** No drive-thru until the core loop is proven.
+5. **A wrong item in a bag is a penalty.** The item is wasted, you lose $1, and the customer loses patience. The bag auto-hands-off once it's complete.
+
+### Controls (Milestone 1)
+
+- Left / Right: walk
+- Up / Down: switch which held item is selected
+- A: grab, start a machine, or bag the selected item
+- B: toss the selected item (-$1)
 
 ## Milestones
 
 - **v0: combo kitchen (done).** Walking, stations, arrow combos, tables, patience, corporate strikes, gamepad input. Lives in `prototypes/v0-combo-kitchen.html`. Used to prove the feel and the art direction.
-- **Milestone 1: bag loop, ugly is fine.** One counter, 4 to 5 grab stations, bagging counter, orders of 2 to 5 items, patience, pay, corporate strikes. No unlocks, no upgrades. Goal: is routing fun?
+- **Milestone 1: bag loop (first build done, now playtesting).** One counter, 4 to 5 grab stations, bagging counter, orders of 2 to 5 items, patience, pay, corporate strikes. No unlocks, no upgrades. Goal: is routing fun?
 - **Milestone 2: feel.** Real sprites from the user's drawings, sound, juice (item pops, bag rustle, angry customer animation).
 - **Milestone 3: a full shift.** Difficulty curve over a shift, end-of-shift results.
 
@@ -47,6 +52,8 @@ Nothing after Milestone 3 is planned on purpose.
 Ideas that sound cool but are **not** being built yet:
 
 - Arrow-combo cooking (from v0)
+- Food burning if left in a machine too long
+- Machines that cook batches of 2+
 - Drive-thru window
 - Menu unlocks over a shift
 - Upgrades between shifts (faster shoes, bigger hands)

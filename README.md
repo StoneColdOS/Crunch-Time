@@ -8,9 +8,10 @@ A 90s fast-food rush game inspired by the sushi bar in Dave the Diver. Walk the 
 
 | Action | Controller (AYN Thor) | Keyboard |
 | --- | --- | --- |
-| Move | D-pad / left stick | Arrows or WASD |
-| Grab / serve | A | Z or Space |
-| Cancel / toss | B | X |
+| Walk | D-pad / left stick left-right | Left / Right or A / D |
+| Switch held item | D-pad up-down | Up / Down or W / S |
+| Grab, start machine, bag item | A | Z or Space |
+| Toss held item | B | X |
 | Start | Start | Enter |
 
 Touch buttons show up on phones.
