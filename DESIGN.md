@@ -31,15 +31,18 @@ The fun is in **routing and juggling**, not in any single action: which order to
 4. **Pick-up window only.** No drive-thru until the core loop is proven.
 5. **A wrong item in a bag is a penalty.** The item is wasted, you lose $1, and the customer loses patience. The bag auto-hands-off once it's complete.
 
+6. **Real 3D, PS1 style.** Low-poly 3D rendered at 320x180 with chunky pixels and wobbly vertices, fixed angled camera, free movement in every direction. Layout follows the sketch in `docs/sketches/2026-11-03-kitchen-layout.jpg`: long pick-up counter across the back, stations spread around the floor.
+
 ### Controls (Milestone 1)
 
-- Left / Right: walk
-- Up / Down: switch which held item is selected
+- D-pad / left stick: walk anywhere
+- L / R: switch which held item is selected
 - A: grab, start a machine, or bag the selected item
 - B: toss the selected item (-$1)
 
 ## Milestones
 
+- **v1: side-view bag loop (done).** First version of the bag loop, 2D side view. Lives in `prototypes/v1-side-view.html`.
 - **v0: combo kitchen (done).** Walking, stations, arrow combos, tables, patience, corporate strikes, gamepad input. Lives in `prototypes/v0-combo-kitchen.html`. Used to prove the feel and the art direction.
 - **Milestone 1: bag loop (first build done, now playtesting).** One counter, 4 to 5 grab stations, bagging counter, orders of 2 to 5 items, patience, pay, corporate strikes. No unlocks, no upgrades. Goal: is routing fun?
 - **Milestone 2: feel.** Real sprites from the user's drawings, sound, juice (item pops, bag rustle, angry customer animation).
@@ -64,6 +67,8 @@ Ideas that sound cool but are **not** being built yet:
 
 ## Tech
 
-- Single HTML file, plain JS, canvas at 240x150 scaled up, no build step.
+- Single HTML file, plain JS, no build step.
+- Three.js r128 from cdnjs. Renders at 320x180 and scales up with nearest-neighbor for the PS1 look.
+- UI (order bubbles, timers, hands) is HTML drawn over the 3D view.
 - Input: keyboard, touch buttons, Gamepad API.
 - Hosted with GitHub Pages so it runs in any browser, including on the Thor.
