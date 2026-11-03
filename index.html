@@ -90,6 +90,10 @@ canvas{display:block;width:100%;aspect-ratio:16/9;image-rendering:pixelated;filt
 .stat .bar b{display:block;height:100%;background:var(--amber)}
 .stat.ready{color:var(--sick);animation:pulse 1s steps(2) infinite}
 @keyframes pulse{50%{opacity:.4}}
+
+.bagtag{font:1.5cqw var(--type);color:#f3e2a0;background:rgba(14,12,11,.85);border:.2cqw solid var(--amber);padding:.25cqw .6cqw;white-space:nowrap;display:flex;gap:.6cqw}
+.bagtag .n{color:#e05050}
+.bagtag.near{background:#3a3010}
 .held{display:flex;gap:.25cqw;background:rgba(0,0,0,.55);padding:.25cqw}
 .held i{width:2.4cqw;height:2.4cqw;display:block;padding:.15cqw}
 .held i.sel{outline:.25cqw solid var(--amber);background:rgba(201,161,58,.25)}
@@ -231,7 +235,7 @@ const BOUNDS={x0:-6.7,x1:6.7,z0:.4,z1:7.7};
 const CUST_Z=-1.8, COUNTER_H=.9;
 // fixed camera angles, Resident Evil style. Zone is picked from where you stand.
 const CAMS={
-  W: {pos:[6.5,9.5,12.5],at:[-.4,.6,1.7], fov:55},  // the whole kitchen from the far corner
+  W: {pos:[5.2,9.0,10.2],at:[-.5,.5,2.2], fov:60},  // the whole kitchen from the far corner
   cL:{pos:[3.4,3.5,4.4], at:[-3.8,.9,-.9], fov:55},   // counter, left half
   cR:{pos:[-3.4,3.5,4.4],at:[3.8,.9,-.9],  fov:55},   // counter, right half
   L: {pos:[2.0,4.0,7.6], at:[-6.2,.5,3.6], fov:58},   // grill + burritos
@@ -304,8 +308,9 @@ function buildWorld(){
   // fluorescent fixtures with point lights (vertex-lit, PS1 style)
   for(const [x,z] of [[-5,3.8],[0,4.2],[5,3.8],[0,.6]]){
     const l=new THREE.PointLight(0xe8f0d0,1.1,9,1.6); l.position.set(x,3.9,z); scene.add(l);
-    const tube=mesh(Box(1.6,.08,.3),new THREE.MeshBasicMaterial({color:0xe8f0d0}),x,4.3,z,scene);
-    mesh(Box(.02,.6,.02),mat(0x202020),x-.6,4.65,z,scene); mesh(Box(.02,.6,.02),mat(0x202020),x+.6,4.65,z,scene);
+    const tube=new THREE.Group(); tube.position.set(x,4.3,z); scene.add(tube);
+    const tm=mesh(Box(1.6,.08,.3),new THREE.MeshBasicMaterial({color:0xe8f0d0}),0,0,0,tube);
+    mesh(Box(.02,.6,.02),mat(0x202020),-.6,.35,0,tube); mesh(Box(.02,.6,.02),mat(0x202020),.6,.35,0,tube); tube.tm=tm;
     lights.push({l,tube,base:1.1,off:0});
   }
   lights[3].bad=true; lights[0].bad=true;
@@ -366,9 +371,9 @@ function buildWorld(){
 
   for(const x of SLOT_X){
     const g=new THREE.Group(); g.position.set(x,COUNTER_H+.08,-.45); scene.add(g);
-    mesh(Box(.55,.62,.36),mat(0xa88a60),0,.31,0,g);
-    mesh(Box(.57,.1,.38),mat(0x7a6040),0,.62,0,g);
-    mesh(Box(.22,.16,.02),mat(0x7a3040),0,.35,.19,g);
+    mesh(Box(.8,.9,.5),mat(0xe0d4b8,{emissive:0x2a2418}),0,.45,0,g);
+    mesh(Box(.82,.12,.52),mat(0xb8a888),0,.9,0,g);
+    mesh(Box(.34,.24,.02),mat(0xa02828),0,.5,.26,g);
     g.visible=false; slotBags.push(g);
   }
   for(const s of STATIONS) stationObjs.push(buildStation(s));
@@ -523,7 +528,7 @@ function newGame(){
   S={t:0,cash:0,strikes:0,served:0,wrong:0,tossed:0,streak:0,best:0,running:true,
      p:{x:-1.5,z:6.5,face:Math.PI},hands:[],sel:0,
      st:STATIONS.map((s,i)=>({...s,state:'idle',t:0,o:stationObjs[i],tag:S?S.st[i].tag:null})),
-     slots:SLOT_X.map((x,i)=>({x,i,c:null,tk:S?S.slots[i].tk:null})),custs:[],spawnIn:2};
+     slots:SLOT_X.map((x,i)=>({x,i,c:null,tk:S?S.slots[i].tk:null,bt:S?S.slots[i].bt:null})),custs:[],spawnIn:2};
   for(const s of S.st){
     if(!s.tag){ s.tag=el('tag',`<div class="sign"><i>${img(s.id)}</i>${s.label}</div><div class="stat" hidden></div>`); s.stat=s.tag.querySelector('.stat'); }
     else s.stat=s.tag.querySelector('.stat');
@@ -531,6 +536,7 @@ function newGame(){
   }
   const rail=$('rail');
   S.slots.forEach((sl,i)=>{ if(!sl.tk){ sl.tk=document.createElement('div'); rail.appendChild(sl.tk); } sl.tk.className='ticket empty'; sl.tk.style.setProperty('--r',(i%2?1:-1)*(.6+i*.3)+'deg'); sl.tk.innerHTML=''; });
+  S.slots.forEach(sl=>{ if(!sl.bt) sl.bt=el('tag'); sl.bt.hidden=true; });
   slotBags.forEach(b=>b.visible=false);
   setCam(zoneFor(S.p.x,S.p.z,'L')); moveBasis=null;
   renderHands(); renderHud();
@@ -732,7 +738,7 @@ function draw(dt){
   for(const L of lights){
     if(L.bad){ if(L.off>0) L.off-=dt; else if(Math.random()<dt*.6) L.off=.05+Math.random()*.35; }
     const on=L.off<=0||Math.random()<.25;
-    L.l.intensity=on?L.base*(.94+Math.random()*.06):.15; L.tube.material.color.setHex(on?0xe8f0d0:0x3a3a34);
+    L.l.intensity=on?L.base*(.94+Math.random()*.06):.15; L.tube.tm.material.color.setHex(on?0xe8f0d0:0x3a3a34); L.tube.visible=camMode!=='wide';
   }
   neon.material.opacity=Math.random()<.03?.3:.9;
 
@@ -758,9 +764,15 @@ function draw(dt){
     if(show){
       b.position.y=COUNTER_H+.08+(c.state==='paid'?c.lift*1.2:0); b.position.z=-.45-(c.state==='paid'?c.lift*1.6:0);
       const hi=near&&near.kind==='slot'&&near.s===sl&&c.state==='waiting';
-      b.children[0].material.emissive.setHex(hi?0x3a3010:0);
+      b.children[0].material.emissive.setHex(hi?0x6a5418:0x2a2418);
     }
-    sl.tk.classList.toggle('near',!!(near&&near.kind==='slot'&&near.s===sl&&c&&c.state==='waiting'));
+    const isNear=!!(near&&near.kind==='slot'&&near.s===sl&&c&&c.state==='waiting');
+    sl.tk.classList.toggle('near',isNear);
+    if(c&&c.state==='waiting'){
+      const done=c.order.filter(o=>o.done).length, key=c.num+':'+done+':'+isNear;
+      if(sl.bt.dataset.k!==key){ sl.bt.dataset.k=key; sl.bt.innerHTML=`<div class="bagtag${isNear?' near':''}"><span class="n">#${c.num}</span><span>BAG ${done}/${c.order.length}</span></div>`; }
+      sl.bt.hidden=false; place(sl.bt,sl.x,COUNTER_H+1.35,-.45);
+    } else sl.bt.hidden=true;
   });
   for(const c of S.custs) if(c.state==='waiting'){
     const f=Math.max(0,c.p/c.max);
